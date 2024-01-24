@@ -4,7 +4,8 @@ pub struct Matrix<T> {
     height: usize
 }
 
-impl<'a, T> Matrix<T> {
+impl<'a, T> Matrix<T> where T: Clone
+{
     pub fn new(width: usize, height: usize) -> Matrix<T> {
         Matrix {
             matrix: Vec::with_capacity(width * height),
@@ -27,5 +28,13 @@ impl<'a, T> Matrix<T> {
 
     pub fn get_height(&self) -> usize {
         self.height
+    }
+
+    pub fn fill(&mut self, x: usize, y: usize, width: usize, height: usize, value: &T) {
+        for i in 0..width {
+            for j in 0..height {
+                self.set(i + x, j + y, value.clone());
+            }
+        }
     }
 }
