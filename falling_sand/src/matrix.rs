@@ -4,11 +4,11 @@ pub struct Matrix<T> {
     height: usize
 }
 
-impl<'a, T> Matrix<T> where T: Clone
+impl<'a, T> Matrix<T> where T: Clone + Default
 {
     pub fn new(width: usize, height: usize) -> Matrix<T> {
         Matrix {
-            matrix: Vec::with_capacity(width * height),
+            matrix: vec![T::default(); width * height],
             width,
             height
         }

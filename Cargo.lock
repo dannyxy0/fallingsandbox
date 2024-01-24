@@ -1836,7 +1836,9 @@ name = "web_render"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
+ "falling_sand",
  "leptos",
+ "web-sys",
 ]
 
 [[package]]
