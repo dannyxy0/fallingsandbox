@@ -4,11 +4,11 @@ pub struct Matrix<T> {
     height: usize
 }
 
-impl<'a, T> Matrix<T> where T: Clone + Default
+impl<'a, T> Matrix<T> where T: Clone
 {
-    pub fn new(width: usize, height: usize) -> Matrix<T> {
+    pub fn new(width: usize, height: usize, default_value: &T) -> Self {
         Matrix {
-            matrix: vec![T::default(); width * height],
+            matrix: vec![default_value.clone(); width * height],
             width,
             height
         }
@@ -22,11 +22,11 @@ impl<'a, T> Matrix<T> where T: Clone + Default
         self.matrix[x + y * self.width] = value;
     }
 
-    pub fn get_width(&self) -> usize {
+    pub fn width(&self) -> usize {
         self.width
     }
 
-    pub fn get_height(&self) -> usize {
+    pub fn height(&self) -> usize {
         self.height
     }
 

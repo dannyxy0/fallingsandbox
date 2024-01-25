@@ -7,7 +7,7 @@ use falling_sand::matrix::Matrix;
 #[component]
 pub fn FallingSand(width: u32, height: u32) -> impl IntoView {
     // TODO: Change test matrix to falling sand simulation
-    let mut matrix = Matrix::new(4, 4);
+    let mut matrix = Matrix::new(4, 4, &false);
     matrix.fill(1, 1, 2, 2, &true);
 
     let canvas_ref = create_node_ref::<Canvas>();
@@ -33,15 +33,15 @@ fn canvas_ref_to_context(canvas_ref: &NodeRef<Canvas>) -> CanvasRenderingContext
 
 fn render_matrix(canvas_context: &CanvasRenderingContext2d, matrix: &Matrix<bool>) {
     let canvas = canvas_context.canvas().expect("canvas_context should have canvas");
-    let width = canvas.width() as f64/matrix.get_width() as f64;
-    let height = canvas.height() as f64/matrix.get_height() as f64;
+    let width = canvas.width() as f64/matrix.width() as f64;
+    let height = canvas.height() as f64/matrix.height() as f64;
 
     canvas_context.begin_path();
     canvas_context.set_fill_style(&"rgba(255, 0, 0, 1)".into());
     canvas_context.fill_rect(0f64, 0f64, canvas.width() as f64, canvas.height() as f64);
 
-    for i in 0..matrix.get_width() {
-        for j in 0..matrix.get_height() {
+    for i in 0..matrix.width() {
+        for j in 0..matrix.height() {
             if *matrix.get(i, j) {
                 canvas_context.set_fill_style(&"rgba(0, 255, 0, 1)".into());
                 canvas_context.fill_rect(i as f64 * width, j as f64 * height, width, height);
