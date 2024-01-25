@@ -1,4 +1,4 @@
 pub mod matrix;
 pub mod simulation;
 pub mod elements;
-mod cell;
+pub mod cell;

@@ -1,2 +1,2 @@
 pub mod app;
-mod falling_sand;
+pub mod falling_sand;
