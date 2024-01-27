@@ -1,6 +1,9 @@
+use crate::matrix::{Matrix, Position};
+use crate::simulation::Cell;
 use dyn_clone::{clone_trait_object, DynClone};
 
 pub trait Element: DynClone {
+    fn tick(&mut self, pos: Position, matrix: &mut Matrix<Cell>);
     fn name(&self) -> &str;
     fn color(&self) -> Color;
 }

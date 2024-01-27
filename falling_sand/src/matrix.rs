@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
 pub struct Matrix<T> {
-    matrix: Vec<T>,
+    pub matrix: Vec<T>,
     width: usize,
     height: usize,
 }
@@ -32,6 +32,11 @@ impl<T> Matrix<T> {
         Ok(&self.matrix[self.index(pos)?])
     }
 
+    pub fn get_mut(&mut self, pos: Position) -> Result<&mut T> {
+        let index = self.index(pos)?;
+        Ok(&mut self.matrix[index])
+    }
+
     pub fn set(&mut self, pos: Position, value: T) -> Result<()> {
         let index = self.index(pos)?;
         self.matrix[index] = value;
@@ -40,6 +45,13 @@ impl<T> Matrix<T> {
 
     pub fn in_bounds(&self, pos: Position) -> bool {
         pos.x >= 0 && pos.x < self.width as isize && pos.y >= 0 && pos.y < self.height as isize
+    }
+
+    pub fn swap(&mut self, pos1: Position, pos2: Position) -> Result<()> {
+        let index1 = self.index(pos1)?;
+        let index2 = self.index(pos2)?;
+        self.matrix.swap(index1, index2);
+        Ok(())
     }
 
     pub fn fill(&mut self, pos: Position, size: Position, value: T) -> Result<()>
