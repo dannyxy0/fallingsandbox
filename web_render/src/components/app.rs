@@ -1,5 +1,5 @@
-use leptos::*;
 use crate::components::falling_sand::FallingSand;
+use leptos::*;
 
 #[component]
 pub fn App() -> impl IntoView {

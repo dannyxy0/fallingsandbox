@@ -1,20 +1,22 @@
+use anyhow::{anyhow, Result};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
-use anyhow::{anyhow, Result};
 
 pub struct Matrix<T> {
     matrix: Vec<T>,
     width: usize,
-    height: usize
+    height: usize,
 }
 
 impl<T> Matrix<T> {
     pub fn new(width: usize, height: usize, default_value: T) -> Self
-        where T: Clone {
+    where
+        T: Clone,
+    {
         Matrix {
             matrix: vec![default_value; width * height],
             width,
-            height
+            height,
         }
     }
 
@@ -38,12 +40,13 @@ impl<T> Matrix<T> {
 
     #[allow(clippy::nonminimal_bool)]
     pub fn in_bounds(&self, pos: Position) -> bool {
-        pos.x >= 0 && pos.x < self.width as isize &&
-        pos.x >= 0 && pos.x < self.width as isize
+        pos.x >= 0 && pos.x < self.width as isize && pos.x >= 0 && pos.x < self.width as isize
     }
 
     pub fn fill(&mut self, pos: Position, size: Position, value: T) -> Result<()>
-        where T: Clone {
+    where
+        T: Clone,
+    {
         self.index(pos + size)?;
 
         for i in 0..size.x {
@@ -57,7 +60,9 @@ impl<T> Matrix<T> {
     }
 
     fn index(&self, pos: Position) -> Result<usize> {
-        if !self.in_bounds(pos) { return Err(anyhow!("Position {pos} is out of bounds")) }
+        if !self.in_bounds(pos) {
+            return Err(anyhow!("Position {pos} is out of bounds"));
+        }
         Ok(pos.x as usize + pos.y as usize * self.width) // Casting to usize is safe because pos is in bounds
     }
 }
@@ -65,7 +70,7 @@ impl<T> Matrix<T> {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     pub x: isize,
-    pub y: isize
+    pub y: isize,
 }
 
 pub const DOWN: Position = Position { x: 0, y: 1 };
