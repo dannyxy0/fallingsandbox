@@ -3,8 +3,8 @@ use leptos::html::Canvas;
 use anyhow::Result;
 use web_sys::CanvasRenderingContext2d;
 use web_sys::wasm_bindgen::JsCast;
-use falling_sand::position::Position;
-use falling_sand::simulation::Simulation;
+use falling_sand::matrix::{Matrix, Position};
+use falling_sand::simulation::{Cell, Simulation};
 
 #[component]
 pub fn FallingSand(width: usize, height: usize) -> impl IntoView {
@@ -13,7 +13,7 @@ pub fn FallingSand(width: usize, height: usize) -> impl IntoView {
     let canvas_ref = create_node_ref::<Canvas>();
     create_effect(move |_| {
         let canvas_context = canvas_ref_to_context(&canvas_ref);
-        let _ = render_matrix(&canvas_context, &simulation);
+        let _ = render_matrix(&canvas_context, &simulation.matrix);
     });
 
     view! {
@@ -31,7 +31,7 @@ fn canvas_ref_to_context(canvas_ref: &NodeRef<Canvas>) -> CanvasRenderingContext
         .expect("canvas_context should cast to CanvasRenderingContext2d")
 }
 
-fn render_matrix(canvas_context: &CanvasRenderingContext2d, simulation: &Simulation) -> Result<()> {
+fn render_matrix(canvas_context: &CanvasRenderingContext2d, simulation: &Matrix<Cell>) -> Result<()> {
     let canvas = canvas_context.canvas().expect("canvas_context should have canvas");
     let width = canvas.width() as f64/simulation.width() as f64;
     let height = canvas.height() as f64/simulation.height() as f64;
@@ -42,7 +42,7 @@ fn render_matrix(canvas_context: &CanvasRenderingContext2d, simulation: &Simulat
 
     for i in 0..simulation.width() {
         for j in 0..simulation.height() {
-            if simulation.get(Position::new(i as i32, j as i32))?.is_some() {
+            if simulation.get(Position::new(i, j))?.is_some() {
                 canvas_context.set_fill_style(&"rgba(0, 255, 0, 1)".into());
                 canvas_context.fill_rect(i as f64 * width, j as f64 * height, width, height);
             }
