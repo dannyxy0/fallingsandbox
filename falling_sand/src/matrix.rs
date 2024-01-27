@@ -38,9 +38,8 @@ impl<T> Matrix<T> {
         Ok(())
     }
 
-    #[allow(clippy::nonminimal_bool)]
     pub fn in_bounds(&self, pos: Position) -> bool {
-        pos.x >= 0 && pos.x < self.width as isize && pos.x >= 0 && pos.x < self.width as isize
+        pos.x >= 0 && pos.x < self.width as isize && pos.y >= 0 && pos.y < self.height as isize
     }
 
     pub fn fill(&mut self, pos: Position, size: Position, value: T) -> Result<()>
