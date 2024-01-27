@@ -26,75 +26,76 @@ impl<T> Matrix<T> {
         self.height
     }
 
-    pub fn get(&self, pos: Position<usize>) -> Result<&T> {
-        self.matrix.get(self.index(pos))
-            .ok_or(anyhow!("Position {pos} is out of bounds"))
+    pub fn get(&self, pos: Position) -> Result<&T> {
+        Ok(&self.matrix[self.index(pos)?])
     }
 
-    pub fn set(&mut self, pos: Position<usize>, value: T) -> Result<()> {
-        let index = self.index(pos);
-        if index > self.matrix.len() { return Err(anyhow!("Position {pos} is out of bounds")); }
-
+    pub fn set(&mut self, pos: Position, value: T) -> Result<()> {
+        let index = self.index(pos)?;
         self.matrix[index] = value;
         Ok(())
     }
 
-    pub fn fill(&mut self, pos: Position<usize>, size: Position<usize>, value: T) -> Result<()>
+    #[allow(clippy::nonminimal_bool)]
+    pub fn in_bounds(&self, pos: Position) -> bool {
+        pos.x >= 0 && pos.x < self.width as isize &&
+        pos.x >= 0 && pos.x < self.width as isize
+    }
+
+    pub fn fill(&mut self, pos: Position, size: Position, value: T) -> Result<()>
         where T: Clone {
-        let max_pos = self.index(pos + size);
-        if max_pos >= self.matrix.len() { return Err(anyhow!("Fill is partially out of bounds")); }
+        self.index(pos + size)?;
 
         for i in 0..size.x {
             for j in 0..size.y {
-                self.set(Position::new(i, j), value.clone())?;
+                let index = self.index(pos + Position::new(i, j))?;
+                self.matrix[index] = value.clone();
             }
         }
 
         Ok(())
     }
 
-    fn index(&self, pos: Position<usize>) -> usize {
-        pos.x + pos.y * self.width
+    fn index(&self, pos: Position) -> Result<usize> {
+        if !self.in_bounds(pos) { return Err(anyhow!("Position {pos} is out of bounds")) }
+        Ok(pos.x as usize + pos.y as usize * self.width) // Casting to usize is safe because pos is in bounds
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Position<T> {
-    pub x: T,
-    pub y: T
+pub struct Position {
+    pub x: isize,
+    pub y: isize
 }
 
-pub const DOWN: Position<i32> = Position { x: 0, y: 1 };
-pub const UP: Position<i32> = Position { x: 0, y: -1 };
-pub const LEFT: Position<i32> = Position { x: -1, y: 0 };
-pub const RIGHT: Position<i32> = Position { x: 1, y: 0 };
+pub const DOWN: Position = Position { x: 0, y: 1 };
+pub const UP: Position = Position { x: 0, y: -1 };
+pub const LEFT: Position = Position { x: -1, y: 0 };
+pub const RIGHT: Position = Position { x: 1, y: 0 };
 
-impl<T> Position<T> {
-    pub fn new(x: T, y: T) -> Self {
+impl Position {
+    pub fn new(x: isize, y: isize) -> Self {
         Position { x, y }
     }
 }
 
-impl<T> Add for Position<T>
-    where T: Add<Output=T> {
-    type Output = Position<T>;
+impl Add for Position {
+    type Output = Position;
 
     fn add(self, rhs: Self) -> Self::Output {
         Position::new(self.x + rhs.x, self.y + rhs.y)
     }
 }
 
-impl<T> Sub for Position<T>
-    where T: Sub<Output=T> {
-    type Output = Position<T>;
+impl Sub for Position {
+    type Output = Position;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Position::new(self.x - rhs.x, self.y - rhs.y)
     }
 }
 
-impl<T> Display for Position<T>
-    where T: Display {
+impl Display for Position {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "x: {}, y: {}", self.x, self.y)
     }

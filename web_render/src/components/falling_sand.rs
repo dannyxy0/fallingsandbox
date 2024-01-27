@@ -42,7 +42,7 @@ fn render_matrix(canvas_context: &CanvasRenderingContext2d, simulation: &Matrix<
 
     for i in 0..simulation.width() {
         for j in 0..simulation.height() {
-            if simulation.get(Position::new(i, j))?.is_some() {
+            if simulation.get(Position::new(i as isize, j as isize))?.is_some() {
                 canvas_context.set_fill_style(&"rgba(0, 255, 0, 1)".into());
                 canvas_context.fill_rect(i as f64 * width, j as f64 * height, width, height);
             }
