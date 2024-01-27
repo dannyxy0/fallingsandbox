@@ -8,3 +8,4 @@ console_error_panic_hook = "0.1.7"
 web-sys = { version = "0.3.67", features = ["CanvasRenderingContext2d"]}
 leptos = { version = "0.5.7", features = ["csr", "nightly"] }
 falling_sand = { path = "../falling_sand" }
+anyhow = "1.0.79"

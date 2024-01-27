@@ -1,38 +1,41 @@
-use std::ops;
+use std::fmt::{Display, Formatter};
+use std::ops::{Add, Sub};
 
-#[derive(Clone, Copy)]
-pub struct Position {
-    pub x: i32,
-    pub y: i32
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Position<T> {
+    pub x: T,
+    pub y: T
 }
 
-pub const LEFT: Position = Position { x: -1, y: 0 };
-pub const RIGHT: Position = Position { x: 1, y: 0 };
-pub const UP: Position = Position { x: 0, y: -1 };
-pub const DOWN: Position = Position { x: 0, y: 1 };
+pub const DOWN: Position<i32> = Position { x: 0, y: 1 };
+pub const UP: Position<i32> = Position { x: 0, y: -1 };
+pub const LEFT: Position<i32> = Position { x: -1, y: 0 };
+pub const RIGHT: Position<i32> = Position { x: 1, y: 0 };
 
-impl Position {
-    pub fn new(x: i32, y: i32) -> Self {
+impl<T> Position<T> {
+    pub fn new(x: T, y: T) -> Self {
         Position { x, y }
     }
-
-    pub fn new_usize(x: usize, y: usize) -> Self {
-        Self::new(x as i32, y as i32)
-    }
 }
 
-impl ops::Add<Position> for Position {
-    type Output = Position;
+impl<T> Add for Position<T> where T: Add<Output=T> {
+    type Output = Position<T>;
 
-    fn add(self, rhs: Position) -> Self::Output {
+    fn add(self, rhs: Self) -> Self::Output {
         Position::new(self.x + rhs.x, self.y + rhs.y)
     }
 }
 
-impl ops::Sub<Position> for Position {
-    type Output = Position;
+impl<T> Sub for Position<T> where T: Sub<Output=T> {
+    type Output = Position<T>;
 
-    fn sub(self, rhs: Position) -> Self::Output {
+    fn sub(self, rhs: Self) -> Self::Output {
         Position::new(self.x - rhs.x, self.y - rhs.y)
+    }
+}
+
+impl<T> Display for Position<T> where T: Display {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "x: {}, y: {}", self.x, self.y)
     }
 }

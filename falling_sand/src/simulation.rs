@@ -1,50 +1,53 @@
-use crate::cell::Cell;
+use anyhow::{anyhow, Result};
 use crate::elements::element::Element;
-use crate::matrix::Matrix;
 use crate::position::Position;
 
-pub struct Simulation<'a> {
-    pub matrix: Matrix<Cell<'a>>
+pub struct Simulation {
+    matrix: Vec<Option<Box<dyn Element>>>,
+    width: usize,
+    height: usize
 }
 
-impl Simulation<'_> {
+impl Simulation {
     pub fn new(width: usize, height: usize) -> Self {
         Simulation {
-            matrix: Matrix::new(width, height, &Cell::default())
+            matrix: vec![None; width * height],
+            width,
+            height
         }
     }
 
-    pub fn in_bounds(&self, pos: Position) -> bool {
-        pos.x >= 0 && pos.x < self.matrix.width() as i32 &&
-        pos.y >= 0 && pos.y < self.matrix.height() as i32
-    }
-
-    pub fn get(&self, pos: Position) -> Option<&dyn Element> {
+    fn pos_to_index(&self, pos: Position<i32>) -> Result<usize> {
         if !self.in_bounds(pos) {
-            return None;
+            return Err(anyhow!("Failed to convert Position '{pos}' to index as it is not in bounds"));
         }
 
-        match self.matrix.get(pos.x as usize, pos.y as usize) {
-            Cell::Empty => None,
-            Cell::Element(element) => Some(*element)
-        }
+        // Casting to usize should be no problem because pos is in bounds
+        Ok(pos.x as usize + pos.y as usize * self.width)
     }
 
-    pub fn tick(&mut self) {
-        for i in 0..self.matrix.width() {
-            for j in 0..self.matrix.height() {
-                let cell = self.matrix.get(i, j);
-                match cell {
-                    Cell::Empty => (),
-                    Cell::Element(element) => {
-                        let _ = element.tick(Position::new_usize(i, j), self);
-                    }
-                }
-            }
-        }
+    pub fn width(&self) -> usize {
+        self.width
     }
 
-    pub fn move_and_swap(&mut self, _pos1: Position, _pos2: Position) {
-        !todo!()
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    pub fn get(&self, pos: Position<i32>) -> Result<&Option<Box<dyn Element>>> {
+
+        Ok(&self.matrix[self.pos_to_index(pos)?])
+    }
+
+    pub fn in_bounds(&self, pos: Position<i32>) -> bool {
+        pos.x >= 0 && pos.x < self.width as i32 &&
+        pos.y >= 0 && pos.y < self.height as i32
+    }
+
+    pub fn move_and_swap(&mut self, pos1: Position<i32>, pos2: Position<i32>) -> Result<()> {
+        let index1 = self.pos_to_index(pos1)?;
+        let index2 = self.pos_to_index(pos2)?;
+        self.matrix.swap(index1, index2);
+        Ok(())
     }
 }
