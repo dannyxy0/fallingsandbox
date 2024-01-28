@@ -12,7 +12,7 @@ use web_sys::CanvasRenderingContext2d;
 #[component]
 pub fn FallingSand(width: usize, height: usize, tick_delay: Duration) -> impl IntoView {
     let simulation = RefCell::new(Simulation::new(width, height));
-    let sand = Some(sand::new());
+    let sand = Some(sand::new_sand());
     let _ = simulation
         .borrow_mut()
         .matrix
