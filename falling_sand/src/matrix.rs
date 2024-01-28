@@ -72,7 +72,7 @@ impl<T> Matrix<T> {
 
     fn index(&self, pos: Vector) -> Result<usize> {
         if !self.in_bounds(pos) {
-            return Err(anyhow!("Position {pos} is out of bounds"));
+            return Err(anyhow!("pos '{pos}' is out of bounds"));
         }
         Ok(pos.x as usize + pos.y as usize * self.width) // Casting to usize is safe because pos is in bounds
     }
@@ -254,7 +254,6 @@ mod tests {
         assert!(matrix.fill(Vector::new(5, 5), Vector::new(2, 2), 1).is_ok());
         for i in 5..7 {
             for j in 5..7 {
-                println!("{i}, {j}");
                 assert_eq!(matrix.matrix[i + j * 10], 1);
             }
         }
@@ -264,7 +263,6 @@ mod tests {
         assert!(matrix.fill(Vector::new(0, 0), Vector::new(6, 6), 2).is_ok());
         for i in 0..6 {
             for j in 0..6 {
-                println!("{i}, {j}");
                 assert_eq!(matrix.matrix[i + j * 10], 2);
             }
         }

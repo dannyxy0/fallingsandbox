@@ -19,11 +19,7 @@ impl Simulation {
         for i in 0..self.matrix.width() {
             for j in 0..self.matrix.height() {
                 let pos = Vector::new(i as isize, j as isize);
-                let cell = self
-                    .matrix
-                    .get_mut(pos)
-                    .expect("Position is in bounds")
-                    .clone();
+                let cell = self.matrix.get_mut(pos).expect("pos is in bounds").clone();
                 match cell {
                     None => (),
                     Some(mut element) => element.tick(pos, &mut self.matrix),
