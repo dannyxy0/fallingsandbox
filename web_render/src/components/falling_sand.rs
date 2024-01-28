@@ -1,5 +1,4 @@
-use falling_sand::elements::element::Element;
-use falling_sand::elements::sand::Sand;
+use falling_sand::elements::sand;
 use falling_sand::matrix::Matrix;
 use falling_sand::simulation::{Cell, Simulation};
 use falling_sand::vector::Vector;
@@ -13,7 +12,7 @@ use web_sys::CanvasRenderingContext2d;
 #[component]
 pub fn FallingSand(width: usize, height: usize, tick_delay: Duration) -> impl IntoView {
     let simulation = RefCell::new(Simulation::new(width, height));
-    let sand = Some(Box::<Sand>::default() as Box<dyn Element>);
+    let sand = Some(sand::new());
     let _ = simulation
         .borrow_mut()
         .matrix
@@ -67,10 +66,10 @@ fn render_matrix(canvas_context: &CanvasRenderingContext2d, matrix: &Matrix<Cell
             if let Some(element) = cell {
                 let color = format!(
                     "rgba({}, {}, {}, {})",
-                    element.color().red,
-                    element.color().green,
-                    element.color().blue,
-                    element.color().alpha / 255
+                    element.properties.color().red,
+                    element.properties.color().green,
+                    element.properties.color().blue,
+                    element.properties.color().alpha / 255
                 );
                 canvas_context.set_fill_style(&color.into());
                 canvas_context.fill_rect(i as f64 * width, j as f64 * height, width, height);

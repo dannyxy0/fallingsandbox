@@ -2,7 +2,7 @@ use crate::elements::element::Element;
 use crate::matrix::Matrix;
 use crate::vector::Vector;
 
-pub type Cell = Option<Box<dyn Element>>;
+pub type Cell = Option<Element>;
 
 pub struct Simulation {
     pub matrix: Matrix<Cell>,
@@ -22,7 +22,7 @@ impl Simulation {
                 let cell = self.matrix.get_mut(pos).expect("pos is in bounds").clone();
                 match cell {
                     None => (),
-                    Some(mut element) => element.tick(pos, &mut self.matrix),
+                    Some(element) => (element.behaviour)(pos, &mut self.matrix),
                 }
             }
         }
