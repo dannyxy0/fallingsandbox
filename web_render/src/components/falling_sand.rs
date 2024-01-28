@@ -1,6 +1,6 @@
 use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::Sand;
-use falling_sand::matrix::{Matrix, Position};
+use falling_sand::matrix::{Matrix, Vector};
 use falling_sand::simulation::{Cell, Simulation};
 use leptos::html::Canvas;
 use leptos::*;
@@ -16,7 +16,7 @@ pub fn FallingSand(width: usize, height: usize, tick_delay: Duration) -> impl In
     let _ = simulation
         .borrow_mut()
         .matrix
-        .fill(Position::new(32, 32), Position::new(64, 64), sand);
+        .fill(Vector::new(32, 32), Vector::new(64, 64), sand);
 
     let canvas_ref = create_node_ref::<Canvas>();
     let _interval_handle = set_interval_with_handle(
@@ -61,7 +61,7 @@ fn render_matrix(canvas_context: &CanvasRenderingContext2d, matrix: &Matrix<Cell
     for i in 0..matrix.width() {
         for j in 0..matrix.height() {
             let cell = matrix
-                .get(Position::new(i as isize, j as isize))
+                .get(Vector::new(i as isize, j as isize))
                 .expect("Position is in bounds");
             if let Some(element) = cell {
                 let color = format!(

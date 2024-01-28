@@ -1,5 +1,5 @@
 use crate::elements::element::Element;
-use crate::matrix::{Matrix, Position};
+use crate::matrix::{Matrix, Vector};
 
 pub type Cell = Option<Box<dyn Element>>;
 
@@ -17,7 +17,7 @@ impl Simulation {
     pub fn tick(&mut self) {
         for i in 0..self.matrix.width() {
             for j in 0..self.matrix.height() {
-                let pos = Position::new(i as isize, j as isize);
+                let pos = Vector::new(i as isize, j as isize);
                 let cell = self
                     .matrix
                     .get_mut(pos)

@@ -1,5 +1,5 @@
 use crate::elements::element::{Color, Element};
-use crate::matrix::{Matrix, Position, DOWN, LEFT, RIGHT};
+use crate::matrix::{Matrix, Vector, DOWN, LEFT, RIGHT};
 use crate::simulation::Cell;
 
 #[derive(Clone)]
@@ -8,7 +8,7 @@ pub struct Sand {
 }
 
 impl Element for Sand {
-    fn tick(&mut self, pos: Position, matrix: &mut Matrix<Cell>) {
+    fn tick(&mut self, pos: Vector, matrix: &mut Matrix<Cell>) {
         let bottom = pos + DOWN;
         let bottom_left = bottom + LEFT;
         let bottom_right = bottom + RIGHT;
