@@ -1,6 +1,7 @@
 use crate::elements::element::{Color, Element};
-use crate::matrix::{Matrix, Vector, DOWN, LEFT, RIGHT};
+use crate::matrix::Matrix;
 use crate::simulation::Cell;
+use crate::vector::{Vector, DOWN, LEFT, RIGHT};
 
 #[derive(Clone)]
 pub struct Sand {

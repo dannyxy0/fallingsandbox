@@ -39,3 +39,35 @@ impl Display for Vector {
         write!(f, "x: {}, y: {}", self.x, self.y)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add_vectors() {
+        assert_eq!(Vector::new(0, 0) + Vector::new(0, 0), Vector::new(0, 0));
+        assert_eq!(Vector::new(5, 3) + Vector::new(8, 1), Vector::new(13, 4));
+        assert_eq!(
+            Vector::new(20, -94) + Vector::new(28, 56),
+            Vector::new(48, -38)
+        );
+        assert_eq!(
+            Vector::new(-8, 0) + Vector::new(-17, -3),
+            Vector::new(-25, -3)
+        );
+        assert_eq!(Vector::new(-0, -0) + Vector::new(0, 0), Vector::new(0, 0));
+    }
+
+    #[test]
+    fn test_sub_vectors() {
+        assert_eq!(Vector::new(0, 0) - Vector::new(0, 0), Vector::new(0, 0));
+        assert_eq!(Vector::new(5, 3) - Vector::new(8, 1), Vector::new(-3, 2));
+        assert_eq!(
+            Vector::new(20, -94) - Vector::new(28, 56),
+            Vector::new(-8, -150)
+        );
+        assert_eq!(Vector::new(-8, 0) - Vector::new(-17, -3), Vector::new(9, 3));
+        assert_eq!(Vector::new(-0, -0) - Vector::new(0, 0), Vector::new(0, 0));
+    }
+}

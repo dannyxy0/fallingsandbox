@@ -1,7 +1,8 @@
 use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::Sand;
-use falling_sand::matrix::{Matrix, Vector};
+use falling_sand::matrix::Matrix;
 use falling_sand::simulation::{Cell, Simulation};
+use falling_sand::vector::Vector;
 use leptos::html::Canvas;
 use leptos::*;
 use std::cell::RefCell;

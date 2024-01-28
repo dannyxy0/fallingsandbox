@@ -1,5 +1,6 @@
-use crate::matrix::{Matrix, Vector};
+use crate::matrix::Matrix;
 use crate::simulation::Cell;
+use crate::vector::Vector;
 use dyn_clone::{clone_trait_object, DynClone};
 
 pub trait Element: DynClone {

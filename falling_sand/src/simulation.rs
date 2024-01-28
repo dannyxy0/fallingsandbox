@@ -1,5 +1,6 @@
 use crate::elements::element::Element;
-use crate::matrix::{Matrix, Vector};
+use crate::matrix::Matrix;
+use crate::vector::Vector;
 
 pub type Cell = Option<Box<dyn Element>>;
 
