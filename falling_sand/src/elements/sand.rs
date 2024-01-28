@@ -29,3 +29,16 @@ impl Element for Sand {
         self.color
     }
 }
+
+impl Default for Sand {
+    fn default() -> Self {
+        Sand {
+            color: Color {
+                red: 255,
+                green: 255,
+                blue: 0,
+                alpha: 255,
+            },
+        }
+    }
+}

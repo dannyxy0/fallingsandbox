@@ -1,20 +1,33 @@
-use anyhow::Result;
+use falling_sand::elements::element::Element;
+use falling_sand::elements::sand::Sand;
 use falling_sand::matrix::{Matrix, Position};
 use falling_sand::simulation::{Cell, Simulation};
 use leptos::html::Canvas;
 use leptos::*;
+use std::cell::RefCell;
+use std::time::Duration;
 use web_sys::wasm_bindgen::JsCast;
 use web_sys::CanvasRenderingContext2d;
 
 #[component]
-pub fn FallingSand(width: usize, height: usize) -> impl IntoView {
-    let simulation = Simulation::new(width, height);
+pub fn FallingSand(width: usize, height: usize, tick_delay: Duration) -> impl IntoView {
+    let simulation = RefCell::new(Simulation::new(width, height));
+    let sand = Some(Box::<Sand>::default() as Box<dyn Element>);
+    let _ = simulation
+        .borrow_mut()
+        .matrix
+        .fill(Position::new(32, 32), Position::new(64, 64), sand);
 
     let canvas_ref = create_node_ref::<Canvas>();
-    create_effect(move |_| {
-        let canvas_context = canvas_ref_to_context(&canvas_ref);
-        let _ = render_matrix(&canvas_context, &simulation.matrix);
-    });
+    let _interval_handle = set_interval_with_handle(
+        move || {
+            let canvas_context = canvas_ref_to_context(&canvas_ref);
+            simulation.borrow_mut().tick();
+            render_matrix(&canvas_context, &simulation.borrow().matrix);
+        },
+        tick_delay,
+    )
+    .unwrap();
 
     view! {
         <canvas id="fs_canvas" _ref=canvas_ref width=width height=height/>
@@ -34,32 +47,35 @@ fn canvas_ref_to_context(canvas_ref: &NodeRef<Canvas>) -> CanvasRenderingContext
         .expect("canvas_context should cast to CanvasRenderingContext2d")
 }
 
-fn render_matrix(
-    canvas_context: &CanvasRenderingContext2d,
-    simulation: &Matrix<Cell>,
-) -> Result<()> {
+fn render_matrix(canvas_context: &CanvasRenderingContext2d, matrix: &Matrix<Cell>) {
     let canvas = canvas_context
         .canvas()
         .expect("canvas_context should have canvas");
-    let width = canvas.width() as f64 / simulation.width() as f64;
-    let height = canvas.height() as f64 / simulation.height() as f64;
+    let width = canvas.width() as f64 / matrix.width() as f64;
+    let height = canvas.height() as f64 / matrix.height() as f64;
 
     canvas_context.begin_path();
-    canvas_context.set_fill_style(&"rgba(255, 0, 0, 1)".into());
+    canvas_context.set_fill_style(&"rgba(255, 255, 255, 1)".into());
     canvas_context.fill_rect(0f64, 0f64, canvas.width() as f64, canvas.height() as f64);
 
-    for i in 0..simulation.width() {
-        for j in 0..simulation.height() {
-            if simulation
-                .get(Position::new(i as isize, j as isize))?
-                .is_some()
-            {
-                canvas_context.set_fill_style(&"rgba(0, 255, 0, 1)".into());
+    for i in 0..matrix.width() {
+        for j in 0..matrix.height() {
+            let cell = matrix
+                .get(Position::new(i as isize, j as isize))
+                .expect("Position is in bounds");
+            if let Some(element) = cell {
+                let color = format!(
+                    "rgba({}, {}, {}, {})",
+                    element.color().red,
+                    element.color().green,
+                    element.color().blue,
+                    element.color().alpha / 255
+                );
+                canvas_context.set_fill_style(&color.into());
                 canvas_context.fill_rect(i as f64 * width, j as f64 * height, width, height);
             }
         }
     }
 
     canvas_context.close_path();
-    Ok(())
 }
