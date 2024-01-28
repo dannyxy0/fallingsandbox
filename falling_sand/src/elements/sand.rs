@@ -14,11 +14,11 @@ impl Element for Sand {
         let bottom_left = bottom + LEFT;
         let bottom_right = bottom + RIGHT;
 
-        if matrix.get(bottom).is_ok_and(Option::is_some) {
+        if matrix.get(bottom).is_ok_and(Option::is_none) {
             let _ = matrix.swap(pos, bottom);
-        } else if matrix.get(bottom_left).is_ok_and(Option::is_some) {
+        } else if matrix.get(bottom_left).is_ok_and(Option::is_none) {
             let _ = matrix.swap(pos, bottom_left);
-        } else if matrix.get(bottom_right).is_ok_and(Option::is_some) {
+        } else if matrix.get(bottom_right).is_ok_and(Option::is_none) {
             let _ = matrix.swap(pos, bottom_right);
         }
     }
@@ -41,5 +41,89 @@ impl Default for Sand {
                 alpha: 255,
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tick_fall_bottom() {
+        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+
+        matrix.matrix[4] = Some(Box::new(Sand::default()));
+        let mut sand = matrix.matrix[4].clone().unwrap();
+        sand.tick(Vector::new(1, 1), &mut matrix);
+
+        assert!(matrix.matrix[4].is_none());
+        assert!(matrix.matrix[7].is_some());
+    }
+
+    #[test]
+    fn test_tick_fall_either_side() {
+        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+
+        matrix.matrix[4] = Some(Box::new(Sand::default()));
+        matrix.matrix[7] = Some(Box::new(Sand::default()));
+
+        let mut sand = matrix.matrix[4].clone().unwrap();
+        sand.tick(Vector::new(1, 1), &mut matrix);
+
+        assert!(matrix.matrix[4].is_none());
+        assert!(matrix.matrix[7].is_some());
+        assert!(matrix.matrix[6].is_some() || matrix.matrix[8].is_some());
+    }
+
+    #[test]
+    fn test_tick_fall_left() {
+        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+
+        matrix.matrix[4] = Some(Box::new(Sand::default()));
+        matrix.matrix[7] = Some(Box::new(Sand::default()));
+        matrix.matrix[8] = Some(Box::new(Sand::default()));
+
+        let mut sand = matrix.matrix[4].clone().unwrap();
+        sand.tick(Vector::new(1, 1), &mut matrix);
+
+        assert!(matrix.matrix[4].is_none());
+        assert!(matrix.matrix[6].is_some());
+        assert!(matrix.matrix[7].is_some());
+        assert!(matrix.matrix[8].is_some());
+    }
+
+    #[test]
+    fn test_tick_fall_right() {
+        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+
+        matrix.matrix[4] = Some(Box::new(Sand::default()));
+        matrix.matrix[7] = Some(Box::new(Sand::default()));
+        matrix.matrix[6] = Some(Box::new(Sand::default()));
+
+        let mut sand = matrix.matrix[4].clone().unwrap();
+        sand.tick(Vector::new(1, 1), &mut matrix);
+
+        assert!(matrix.matrix[4].is_none());
+        assert!(matrix.matrix[6].is_some());
+        assert!(matrix.matrix[7].is_some());
+        assert!(matrix.matrix[8].is_some());
+    }
+
+    #[test]
+    fn test_tick_blocked() {
+        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+
+        matrix.matrix[4] = Some(Box::new(Sand::default()));
+        matrix.matrix[6] = Some(Box::new(Sand::default()));
+        matrix.matrix[7] = Some(Box::new(Sand::default()));
+        matrix.matrix[8] = Some(Box::new(Sand::default()));
+
+        let mut sand = matrix.matrix[4].clone().unwrap();
+        sand.tick(Vector::new(1, 1), &mut matrix);
+
+        assert!(matrix.matrix[4].is_some());
+        assert!(matrix.matrix[6].is_some());
+        assert!(matrix.matrix[7].is_some());
+        assert!(matrix.matrix[8].is_some());
     }
 }
