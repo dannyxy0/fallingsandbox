@@ -16,6 +16,13 @@ impl Vector {
     pub fn new(x: isize, y: isize) -> Self {
         Vector { x, y }
     }
+
+    pub fn new_usize(x: usize, y: usize) -> Self {
+        Vector {
+            x: x as isize,
+            y: y as isize,
+        }
+    }
 }
 
 impl Add for Vector {

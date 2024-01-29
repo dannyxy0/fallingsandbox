@@ -18,7 +18,7 @@ impl Simulation {
     pub fn tick(&mut self) {
         for i in 0..self.matrix.width() {
             for j in (0..self.matrix.height()).rev() {
-                let pos = Vector::new(i as isize, j as isize);
+                let pos = Vector::new_usize(i, j);
                 let cell = self.matrix.get(pos).expect("pos is in bounds");
                 match cell {
                     None => (),

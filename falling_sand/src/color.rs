@@ -23,4 +23,8 @@ impl Color {
     pub fn black() -> Self {
         Color::new(0, 0, 0)
     }
+
+    pub fn white() -> Self {
+        Color::new(255, 255, 255)
+    }
 }
