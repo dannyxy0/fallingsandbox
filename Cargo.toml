@@ -1,5 +1,5 @@
 [workspace]
 resolver = "2"
 members = [
-    "falling_sand", "web_render",
+    "falling_sand", "web_render", "wgpu_render",
 ]
