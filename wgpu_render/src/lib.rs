@@ -145,7 +145,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
 #[allow(dead_code)]
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
-pub fn init() {
+pub fn start() {
     let event_loop = EventLoop::new().expect("Couldnt create event loop");
     #[allow(unused_mut)]
     let mut builder = winit::window::WindowBuilder::new();

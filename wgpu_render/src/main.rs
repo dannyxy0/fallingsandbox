@@ -1,5 +1,5 @@
-use wgpu_render::init;
+use wgpu_render::start;
 
 fn main() {
-    init();
+    start();
 }
