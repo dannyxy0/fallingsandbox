@@ -160,7 +160,10 @@ pub fn init() {
             .expect("Couldnt find canvas in document");
         builder = builder.with_canvas(Some(canvas));
     }
-    let window = builder.build(&event_loop).expect("Couldnt build window");
+    let window = builder
+        .with_title("Falling Sand")
+        .build(&event_loop)
+        .expect("Couldnt build window");
 
     #[cfg(not(target_arch = "wasm32"))]
     env_logger::init();
