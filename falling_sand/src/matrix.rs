@@ -58,7 +58,7 @@ impl<T> Matrix<T> {
     where
         T: Clone,
     {
-        self.index(pos + size)?;
+        self.index(pos + size + Vector::new(-1, -1))?;
 
         for i in 0..size.x {
             for j in 0..size.y {
@@ -268,5 +268,10 @@ mod tests {
         }
         assert_eq!(matrix.matrix[66], 1);
         assert_eq!(matrix.matrix[78], 0);
+
+        assert!(matrix
+            .fill(Vector::new(0, 0), Vector::new(10, 10), 5)
+            .is_ok());
+        matrix.matrix.iter().for_each(|x| assert_eq!(*x, 5))
     }
 }
