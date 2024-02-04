@@ -1,13 +1,38 @@
 // https://github.com/gfx-rs/wgpu/blob/trunk/examples/src/hello_triangle/mod.rs
 
+use bytemuck::{cast_slice, Pod, Zeroable};
 use log::info;
 use std::borrow::Cow;
+use std::mem::size_of;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::*;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, Pod, Zeroable)]
+struct Vertex {
+    position: [f32; 2],
+    color: [f32; 4],
+}
+
+const VERTICES: &[Vertex] = &[
+    Vertex {
+        position: [0.0, 0.5],
+        color: [1.0, 0.0, 0.0, 1.0],
+    },
+    Vertex {
+        position: [-0.5, -0.5],
+        color: [0.0, 1.0, 0.0, 1.0],
+    },
+    Vertex {
+        position: [0.5, -0.5],
+        color: [0.0, 0.0, 1.0, 1.0],
+    },
+];
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut size = window.inner_size();
@@ -58,13 +83,24 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let swapchain_capabilities = surface.get_capabilities(&adapter);
     let swapchain_format = swapchain_capabilities.formats[0];
 
+    let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+        label: None,
+        contents: cast_slice(VERTICES),
+        usage: BufferUsages::VERTEX,
+    });
+    let vertex_buffer_layout = VertexBufferLayout {
+        array_stride: size_of::<Vertex>() as BufferAddress,
+        step_mode: VertexStepMode::Vertex,
+        attributes: &vertex_attr_array![0 => Float32x2, 1 => Float32x4],
+    };
+
     let render_pipeline = device.create_render_pipeline(&RenderPipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         vertex: VertexState {
             module: &shader,
             entry_point: "vs_main",
-            buffers: &[],
+            buffers: &[vertex_buffer_layout],
         },
         fragment: Some(FragmentState {
             module: &shader,
@@ -114,22 +150,24 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         let mut encoder = device
                             .create_command_encoder(&CommandEncoderDescriptor { label: None });
                         {
-                            let mut rpass = encoder.begin_render_pass(&RenderPassDescriptor {
-                                label: None,
-                                color_attachments: &[Some(RenderPassColorAttachment {
-                                    view: &view,
-                                    resolve_target: None,
-                                    ops: Operations {
-                                        load: LoadOp::Clear(Color::GREEN),
-                                        store: StoreOp::Store,
-                                    },
-                                })],
-                                depth_stencil_attachment: None,
-                                timestamp_writes: None,
-                                occlusion_query_set: None,
-                            });
-                            rpass.set_pipeline(&render_pipeline);
-                            rpass.draw(0..3, 0..1);
+                            let mut render_pass =
+                                encoder.begin_render_pass(&RenderPassDescriptor {
+                                    label: None,
+                                    color_attachments: &[Some(RenderPassColorAttachment {
+                                        view: &view,
+                                        resolve_target: None,
+                                        ops: Operations {
+                                            load: LoadOp::Clear(Color::WHITE),
+                                            store: StoreOp::Store,
+                                        },
+                                    })],
+                                    depth_stencil_attachment: None,
+                                    timestamp_writes: None,
+                                    occlusion_query_set: None,
+                                });
+                            render_pass.set_pipeline(&render_pipeline);
+                            render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+                            render_pass.draw(0..VERTICES.len() as u32, 0..1);
                         }
 
                         queue.submit(Some(encoder.finish()));
