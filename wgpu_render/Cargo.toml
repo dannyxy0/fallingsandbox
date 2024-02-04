@@ -16,6 +16,7 @@ wgpu = { version = "0.19.1", default-features = false, features = ["webgl", "wgs
 winit = "0.29.10"
 pollster = "0.3.0"
 bytemuck = { version = "1.14.1", features = ["derive"] }
+falling_sand = { path = "../falling_sand" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.7"

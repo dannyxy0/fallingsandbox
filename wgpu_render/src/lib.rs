@@ -1,6 +1,8 @@
-// https://github.com/gfx-rs/wgpu/blob/trunk/examples/src/hello_triangle/mod.rs
-
 use bytemuck::{cast_slice, Pod, Zeroable};
+use falling_sand::elements::sand::new_sand;
+use falling_sand::matrix::Matrix;
+use falling_sand::simulation::{Cell, Simulation};
+use falling_sand::vector::Vector;
 use log::info;
 use std::borrow::Cow;
 use std::mem::size_of;
@@ -19,22 +21,13 @@ struct Vertex {
     color: [f32; 4],
 }
 
-const VERTICES: &[Vertex] = &[
-    Vertex {
-        position: [0.0, 0.5],
-        color: [1.0, 0.0, 0.0, 1.0],
-    },
-    Vertex {
-        position: [-0.5, -0.5],
-        color: [0.0, 1.0, 0.0, 1.0],
-    },
-    Vertex {
-        position: [0.5, -0.5],
-        color: [0.0, 0.0, 1.0, 1.0],
-    },
-];
-
 async fn run(event_loop: EventLoop<()>, window: Window) {
+    let mut simulation = Simulation::new(100, 100);
+    simulation
+        .matrix
+        .fill(Vector::new(5, 5), Vector::new(10, 10), Some(new_sand()))
+        .expect("Fill is out of bounds");
+
     let mut size = window.inner_size();
     size.width = size.width.max(1);
     size.height = size.height.max(1);
@@ -83,9 +76,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let swapchain_capabilities = surface.get_capabilities(&adapter);
     let swapchain_format = swapchain_capabilities.formats[0];
 
+    let vertices = vertices_from_matrix(&simulation.matrix);
     let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
         label: None,
-        contents: cast_slice(VERTICES),
+        contents: cast_slice(vertices.as_slice()),
         usage: BufferUsages::VERTEX,
     });
     let vertex_buffer_layout = VertexBufferLayout {
@@ -167,7 +161,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 });
                             render_pass.set_pipeline(&render_pipeline);
                             render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
-                            render_pass.draw(0..VERTICES.len() as u32, 0..1);
+                            render_pass.draw(0..vertices.len() as u32, 0..1);
                         }
 
                         queue.submit(Some(encoder.finish()));
@@ -211,4 +205,58 @@ pub fn start() {
         console_log::init().expect("Couldnt initialize logger");
     }
     pollster::block_on(run(event_loop, window));
+}
+
+fn vertices_from_matrix(matrix: &Matrix<Cell>) -> Vec<Vertex> {
+    // clip_space ranges from -1 to 1, so we need to divide 2 by xy
+    let spacing_x = 2.0 / matrix.width() as f32;
+    let spacing_y = 2.0 / matrix.height() as f32;
+
+    matrix
+        .matrix
+        .iter()
+        .enumerate()
+        .filter_map(|(i, cell)| {
+            cell.as_ref().map(|element| {
+                let c = element.properties.color();
+                let color = [c.red, c.green, c.blue, c.alpha].map(|x| x as f32 / 255.0);
+
+                // origin is the top left position of the rectangle we need to draw
+                // position from 0 to 1
+                let mut origin_x = (i % matrix.width()) as f32 / matrix.width() as f32;
+                let mut origin_y = (i / matrix.height()) as f32 / matrix.height() as f32;
+                // position from -1 to 1
+                origin_x = origin_x * 2.0 - 1.0;
+                origin_y = 1.0 - origin_y * 2.0;
+
+                [
+                    Vertex {
+                        position: [origin_x, origin_y],
+                        color,
+                    },
+                    Vertex {
+                        position: [origin_x, origin_y - spacing_y],
+                        color,
+                    },
+                    Vertex {
+                        position: [origin_x + spacing_x, origin_y],
+                        color,
+                    },
+                    Vertex {
+                        position: [origin_x + spacing_x, origin_y],
+                        color,
+                    },
+                    Vertex {
+                        position: [origin_x, origin_y - spacing_y],
+                        color,
+                    },
+                    Vertex {
+                        position: [origin_x + spacing_x, origin_y - spacing_y],
+                        color,
+                    },
+                ]
+            })
+        })
+        .flatten()
+        .collect()
 }
