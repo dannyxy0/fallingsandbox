@@ -8,10 +8,11 @@ use std::borrow::Cow;
 use std::mem::size_of;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+use web_time::{Duration, Instant};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::*;
 use winit::event::{Event, WindowEvent};
-use winit::event_loop::EventLoop;
+use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::Window;
 
 #[repr(C)]
@@ -76,12 +77,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let swapchain_capabilities = surface.get_capabilities(&adapter);
     let swapchain_format = swapchain_capabilities.formats[0];
 
-    let vertices = vertices_from_matrix(&simulation.matrix);
-    let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
-        label: None,
-        contents: cast_slice(vertices.as_slice()),
-        usage: BufferUsages::VERTEX,
-    });
     let vertex_buffer_layout = VertexBufferLayout {
         array_stride: size_of::<Vertex>() as BufferAddress,
         step_mode: VertexStepMode::Vertex,
@@ -114,13 +109,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     info!("wgpu initialized");
 
+    let mut last_updated = Instant::now();
+    const TICK_SPEED: Duration = Duration::from_millis(100);
+
     let window = &window;
+    event_loop.set_control_flow(ControlFlow::Poll);
     event_loop
         .run(move |event, target| {
-            // Have the closure take ownership of the resources.
-            // `event_loop.run` never returns, therefore we must do this to ensure
-            // the resources are properly cleaned up.
-            let _ = (&instance, &adapter, &shader, &pipeline_layout);
+            if last_updated.elapsed() >= TICK_SPEED {
+                last_updated = Instant::now();
+                simulation.tick();
+                window.request_redraw();
+            }
 
             if let Event::WindowEvent {
                 window_id: _,
@@ -137,6 +137,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         window.request_redraw();
                     }
                     WindowEvent::RedrawRequested => {
+                        let vertices = vertices_from_matrix(&simulation.matrix);
+                        let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
+                            label: None,
+                            contents: cast_slice(vertices.as_slice()),
+                            usage: BufferUsages::VERTEX,
+                        });
+
                         let frame = surface
                             .get_current_texture()
                             .expect("Failed to acquire next swap chain texture");
