@@ -5,6 +5,7 @@ use crate::elements::powder_behaviour::powder_behaviour;
 #[derive(Clone)]
 pub struct SandProperties {
     color: Color,
+    visited: bool,
 }
 
 impl ElementProperties for SandProperties {
@@ -15,12 +16,21 @@ impl ElementProperties for SandProperties {
     fn color(&self) -> Color {
         self.color
     }
+
+    fn visited(&self) -> bool {
+        self.visited
+    }
+
+    fn set_visited(&mut self, value: bool) {
+        self.visited = value;
+    }
 }
 
 impl Default for SandProperties {
     fn default() -> Self {
         SandProperties {
             color: Color::new(239, 221, 111),
+            visited: false,
         }
     }
 }

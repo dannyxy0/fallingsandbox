@@ -3,6 +3,12 @@ use crate::simulation::Cell;
 use crate::vector::{Vector, DOWN, LEFT, RIGHT};
 
 pub fn powder_behaviour(pos: Vector, matrix: &mut Matrix<Cell>) {
+    if let Ok(Some(element)) = matrix.get_mut(pos) {
+        element
+            .properties
+            .set_visited(!element.properties.visited());
+    }
+
     let bottom = pos + DOWN;
     let bottom_left = bottom + LEFT;
     let bottom_right = bottom + RIGHT;
