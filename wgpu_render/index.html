@@ -6,11 +6,12 @@
     <style>
         canvas {
             background-color: black;
+            image-rendering: pixelated;
         }
     </style>
 </head>
     <body>
-        <canvas id="canvas" style="width: 500px; height: 500px"></canvas>
+        <canvas id="canvas" style="width: 500px; height: 500px; box-shadow: 0 0 3px 3px darkgray"></canvas>
         <script type="module">
             import init from "./pkg/wgpu_render.js";
             init().then(() => {

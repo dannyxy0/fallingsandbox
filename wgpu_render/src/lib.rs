@@ -189,10 +189,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             let _ = simulation
                                 .matrix
                                 .set(Vector::new(x, y), Some(drawable_elements[curr_element]()));
+                            window.request_redraw();
                         }
                     }
                     WindowEvent::MouseInput { button, state, .. } => {
-                        drawing = button == MouseButton::Left && state == ElementState::Pressed
+                        drawing = button == MouseButton::Left && state == ElementState::Pressed;
                     }
                     WindowEvent::CloseRequested => target.exit(),
                     _ => (),
