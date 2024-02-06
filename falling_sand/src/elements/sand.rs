@@ -20,7 +20,7 @@ impl ElementProperties for SandProperties {
 impl Default for SandProperties {
     fn default() -> Self {
         SandProperties {
-            color: Color::new(255, 255, 0),
+            color: Color::new(239, 221, 111),
         }
     }
 }

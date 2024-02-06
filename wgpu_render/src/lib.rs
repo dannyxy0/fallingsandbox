@@ -25,10 +25,6 @@ struct Vertex {
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut simulation = Simulation::new(100, 100);
-    simulation
-        .matrix
-        .fill(Vector::new(5, 5), Vector::new(10, 10), Some(new_sand()))
-        .expect("Fill is out of bounds");
 
     let mut size = window.inner_size();
     size.width = size.width.max(1);
