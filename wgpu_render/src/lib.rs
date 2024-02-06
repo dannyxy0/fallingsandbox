@@ -1,4 +1,5 @@
 use bytemuck::{cast_slice, Pod, Zeroable};
+use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::new_sand;
 use falling_sand::matrix::Matrix;
 use falling_sand::simulation::{Cell, Simulation};
@@ -11,7 +12,7 @@ use wasm_bindgen::prelude::*;
 use web_time::{Duration, Instant};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::*;
-use winit::event::{Event, WindowEvent};
+use winit::event::{ElementState, Event, MouseButton, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::Window;
 
@@ -109,8 +110,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     info!("wgpu initialized");
 
+    const TICK_SPEED: Duration = Duration::from_millis(10);
+    let drawable_elements: Vec<fn() -> Element> = vec![new_sand];
+    let curr_element = 0usize;
     let mut last_updated = Instant::now();
-    const TICK_SPEED: Duration = Duration::from_millis(100);
+    let mut drawing = false;
 
     let window = &window;
     event_loop.set_control_flow(ControlFlow::Poll);
@@ -173,6 +177,22 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
                         queue.submit(Some(encoder.finish()));
                         frame.present();
+                    }
+                    WindowEvent::CursorMoved { position, .. } => {
+                        if drawing {
+                            let x = ((position.x / config.width as f64)
+                                * simulation.matrix.width() as f64)
+                                as isize;
+                            let y = ((position.y / config.height as f64)
+                                * simulation.matrix.height() as f64)
+                                as isize;
+                            let _ = simulation
+                                .matrix
+                                .set(Vector::new(x, y), Some(drawable_elements[curr_element]()));
+                        }
+                    }
+                    WindowEvent::MouseInput { button, state, .. } => {
+                        drawing = button == MouseButton::Left && state == ElementState::Pressed
                     }
                     WindowEvent::CloseRequested => target.exit(),
                     _ => (),
