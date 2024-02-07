@@ -15,7 +15,6 @@ use wgpu::*;
 use winit::event::{ElementState, Event, MouseButton, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::keyboard::Key;
-use winit::platform::modifier_supplement::KeyEventExtModifierSupplement;
 use winit::window::Window;
 
 #[repr(C)]
@@ -195,7 +194,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     }
                     WindowEvent::KeyboardInput { event, .. } => {
                         if event.state == ElementState::Pressed && !event.repeat {
-                            match event.key_without_modifiers().as_ref() {
+                            match event.logical_key.as_ref() {
                                 Key::Character("j") => {
                                     curr_element = curr_element.saturating_sub(1)
                                 }
