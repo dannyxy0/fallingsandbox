@@ -1,6 +1,7 @@
 use bytemuck::{cast_slice, Pod, Zeroable};
 use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::new_sand;
+use falling_sand::elements::water::new_water;
 use falling_sand::matrix::Matrix;
 use falling_sand::simulation::{Cell, Simulation};
 use falling_sand::vector::Vector;
@@ -14,6 +15,8 @@ use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::*;
 use winit::event::{ElementState, Event, MouseButton, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
+use winit::keyboard::Key;
+use winit::platform::modifier_supplement::KeyEventExtModifierSupplement;
 use winit::window::Window;
 
 #[repr(C)]
@@ -107,8 +110,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     info!("wgpu initialized");
 
     const TICK_SPEED: Duration = Duration::from_millis(10);
-    let drawable_elements: Vec<fn() -> Element> = vec![new_sand];
-    let curr_element = 0usize;
+    let drawable_elements: Vec<fn() -> Element> = vec![new_sand, new_water];
+    let mut curr_element = 0usize;
     let mut last_updated = Instant::now();
     let mut drawing = false;
 
@@ -190,6 +193,20 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     }
                     WindowEvent::MouseInput { button, state, .. } => {
                         drawing = button == MouseButton::Left && state == ElementState::Pressed;
+                    }
+                    WindowEvent::KeyboardInput { event, .. } => {
+                        if event.state == ElementState::Pressed && !event.repeat {
+                            match event.key_without_modifiers().as_ref() {
+                                Key::Character("j") => {
+                                    curr_element = curr_element.saturating_sub(1)
+                                }
+                                Key::Character("l") => {
+                                    curr_element =
+                                        (curr_element + 1).min(drawable_elements.len() - 1)
+                                }
+                                _ => (),
+                            }
+                        }
                     }
                     WindowEvent::CloseRequested => target.exit(),
                     _ => (),

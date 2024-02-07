@@ -1,6 +1,8 @@
 pub mod element;
+pub mod liquid_behaviour;
 pub mod powder_behaviour;
 pub mod sand;
+pub mod water;
 
 #[cfg(test)]
 mod tests {
