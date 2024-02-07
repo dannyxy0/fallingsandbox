@@ -2,8 +2,7 @@ use bytemuck::{cast_slice, Pod, Zeroable};
 use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::new_sand;
 use falling_sand::elements::water::new_water;
-use falling_sand::matrix::Matrix;
-use falling_sand::simulation::{Cell, Simulation};
+use falling_sand::simulation::{ElementMatrix, Simulation};
 use falling_sand::vector::Vector;
 use log::info;
 use std::borrow::Cow;
@@ -248,7 +247,7 @@ pub fn start() {
     pollster::block_on(run(event_loop, window));
 }
 
-fn vertices_from_matrix(matrix: &Matrix<Cell>) -> Vec<Vertex> {
+fn vertices_from_matrix(matrix: &ElementMatrix) -> Vec<Vertex> {
     // clip_space ranges from -1 to 1, so we need to divide 2 by xy
     let spacing_x = 2.0 / matrix.width() as f32;
     let spacing_y = 2.0 / matrix.height() as f32;

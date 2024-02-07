@@ -1,8 +1,7 @@
-use crate::matrix::Matrix;
-use crate::simulation::Cell;
+use crate::simulation::ElementMatrix;
 use crate::vector::{Vector, DOWN, LEFT, RIGHT};
 
-pub fn liquid_behaviour(pos: Vector, matrix: &mut Matrix<Cell>) {
+pub fn liquid_behaviour(pos: Vector, matrix: &mut ElementMatrix) {
     if let Ok(Some(element)) = matrix.get_mut(pos) {
         element
             .properties
@@ -35,7 +34,7 @@ mod tests {
 
     #[test]
     fn test_tick_fall_bottom() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
         matrix.matrix[4] = Some(new_marked("test object"));
 
         liquid_behaviour(Vector::new(1, 1), &mut matrix);
@@ -49,7 +48,7 @@ mod tests {
 
     #[test]
     fn test_tick_fall_either_side() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[7] = Some(new_non_moving());
 
@@ -65,7 +64,7 @@ mod tests {
 
     #[test]
     fn test_tick_fall_left() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
 
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[7] = Some(new_non_moving());
@@ -84,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_tick_fall_right() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
 
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[7] = Some(new_non_moving());
@@ -103,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_tick_move_either_side() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
 
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[6] = Some(new_non_moving());
@@ -125,7 +124,7 @@ mod tests {
 
     #[test]
     fn test_tick_move_left() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
 
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[6] = Some(new_non_moving());
@@ -148,7 +147,7 @@ mod tests {
 
     #[test]
     fn test_tick_move_right() {
-        let mut matrix = Matrix::<Cell>::new(3, 3, None);
+        let mut matrix = ElementMatrix::new(3, 3, None);
 
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[6] = Some(new_non_moving());

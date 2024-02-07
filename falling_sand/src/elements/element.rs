@@ -1,6 +1,5 @@
 use crate::color::Color;
-use crate::matrix::Matrix;
-use crate::simulation::Cell;
+use crate::simulation::ElementMatrix;
 use crate::vector::Vector;
 use dyn_clone::{clone_trait_object, DynClone};
 
@@ -17,5 +16,5 @@ clone_trait_object!(ElementProperties);
 #[derive(Clone)]
 pub struct Element {
     pub properties: Box<dyn ElementProperties>,
-    pub behaviour: fn(Vector, &mut Matrix<Cell>),
+    pub behaviour: fn(Vector, &mut ElementMatrix),
 }

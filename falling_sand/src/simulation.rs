@@ -2,10 +2,10 @@ use crate::elements::element::Element;
 use crate::matrix::Matrix;
 use crate::vector::Vector;
 
-pub type Cell = Option<Element>;
+pub type ElementMatrix = Matrix<Option<Element>>;
 
 pub struct Simulation {
-    pub matrix: Matrix<Cell>,
+    pub matrix: ElementMatrix,
     tick_visit: bool,
 }
 
