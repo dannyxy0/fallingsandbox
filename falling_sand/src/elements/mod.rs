@@ -39,7 +39,7 @@ mod tests {
                 name: "NonMoving",
                 visited: false,
             }),
-            behaviour: |_, _| {},
+            behaviour: |_| {},
         }
     }
 
@@ -49,7 +49,7 @@ mod tests {
                 name,
                 visited: false,
             }),
-            behaviour: |_, _| {},
+            behaviour: |_| {},
         }
     }
 }

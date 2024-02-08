@@ -1,43 +1,30 @@
-use crate::simulation::ElementMatrix;
-use crate::vector::{Vector, DOWN, LEFT, RIGHT};
+use crate::element_api::ElementApi;
+use crate::vector::{DOWN, LEFT, RIGHT};
 
-pub fn liquid_behaviour(pos: Vector, matrix: &mut ElementMatrix) {
-    if let Ok(Some(element)) = matrix.get_mut(pos) {
-        element
-            .properties
-            .set_visited(!element.properties.visited());
-    }
+#[allow(clippy::short_circuit_statement)]
+pub fn liquid_behaviour(mut api: ElementApi) {
+    let _ = api.swap(DOWN)
+        || api.swap(DOWN + LEFT)
+        || api.swap(DOWN + RIGHT)
+        || api.swap(LEFT)
+        || api.swap(RIGHT);
 
-    let left = pos + LEFT;
-    let right = pos + RIGHT;
-    let bottom = pos + DOWN;
-    let bottom_left = bottom + LEFT;
-    let bottom_right = bottom + RIGHT;
-
-    if matrix.get(bottom).is_ok_and(Option::is_none) {
-        let _ = matrix.swap(pos, bottom);
-    } else if matrix.get(bottom_left).is_ok_and(Option::is_none) {
-        let _ = matrix.swap(pos, bottom_left);
-    } else if matrix.get(bottom_right).is_ok_and(Option::is_none) {
-        let _ = matrix.swap(pos, bottom_right);
-    } else if matrix.get(left).is_ok_and(Option::is_none) {
-        let _ = matrix.swap(pos, left);
-    } else if matrix.get(right).is_ok_and(Option::is_none) {
-        let _ = matrix.swap(pos, right);
-    }
+    api.flip_visited();
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::elements::tests::{new_marked, new_non_moving};
+    use crate::simulation::ElementMatrix;
+    use crate::vector::Vector;
 
     #[test]
     fn test_tick_fall_bottom() {
         let mut matrix = ElementMatrix::new(3, 3, None);
         matrix.matrix[4] = Some(new_marked("test object"));
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert_eq!(
@@ -52,7 +39,7 @@ mod tests {
         matrix.matrix[4] = Some(new_marked("test object"));
         matrix.matrix[7] = Some(new_non_moving());
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert!(matrix.matrix[7].is_some());
@@ -70,7 +57,7 @@ mod tests {
         matrix.matrix[7] = Some(new_non_moving());
         matrix.matrix[8] = Some(new_non_moving());
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert!(matrix.matrix[7].is_some());
@@ -89,7 +76,7 @@ mod tests {
         matrix.matrix[7] = Some(new_non_moving());
         matrix.matrix[6] = Some(new_non_moving());
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert!(matrix.matrix[6].is_some());
@@ -109,7 +96,7 @@ mod tests {
         matrix.matrix[7] = Some(new_non_moving());
         matrix.matrix[8] = Some(new_non_moving());
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert!(matrix.matrix[6].is_some());
@@ -132,7 +119,7 @@ mod tests {
         matrix.matrix[8] = Some(new_non_moving());
         matrix.matrix[5] = Some(new_non_moving());
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert!(matrix.matrix[6].is_some());
@@ -155,7 +142,7 @@ mod tests {
         matrix.matrix[8] = Some(new_non_moving());
         matrix.matrix[3] = Some(new_non_moving());
 
-        liquid_behaviour(Vector::new(1, 1), &mut matrix);
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
 
         assert!(matrix.matrix[4].is_none());
         assert!(matrix.matrix[6].is_some());
@@ -166,5 +153,22 @@ mod tests {
             matrix.matrix[5].clone().unwrap().properties.name(),
             "test object"
         );
+    }
+
+    #[test]
+    fn test_flip_visited() {
+        let mut matrix = ElementMatrix::new(3, 3, None);
+        matrix.matrix[4] = Some(new_marked("test object"));
+
+        assert!(!matrix.matrix[4].clone().unwrap().properties.visited());
+
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 1)));
+        assert!(matrix.matrix[7].clone().unwrap().properties.visited());
+
+        liquid_behaviour(ElementApi::new(&mut matrix, Vector::new(1, 2)));
+        let left_or_right = matrix.matrix[6]
+            .clone()
+            .unwrap_or_else(|| matrix.matrix[8].clone().unwrap());
+        assert!(!left_or_right.properties.visited());
     }
 }

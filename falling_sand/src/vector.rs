@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, Sub};
+use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vector {
@@ -41,6 +41,20 @@ impl Sub for Vector {
     }
 }
 
+impl AddAssign for Vector {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+    }
+}
+
+impl SubAssign for Vector {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x = self.x - rhs.x;
+        self.y = self.y - rhs.y;
+    }
+}
+
 impl Display for Vector {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "x: {}, y: {}", self.x, self.y)
@@ -76,5 +90,51 @@ mod tests {
         );
         assert_eq!(Vector::new(-8, 0) - Vector::new(-17, -3), Vector::new(9, 3));
         assert_eq!(Vector::new(-0, -0) - Vector::new(0, 0), Vector::new(0, 0));
+    }
+
+    #[test]
+    fn test_add_assign_vectors() {
+        let mut v = Vector::new(0, 0);
+        v += Vector::new(0, 0);
+        assert_eq!(v, Vector::new(0, 0));
+
+        let mut v = Vector::new(5, 3);
+        v += Vector::new(8, 1);
+        assert_eq!(v, Vector::new(13, 4));
+
+        let mut v = Vector::new(20, -94);
+        v += Vector::new(28, 56);
+        assert_eq!(v, Vector::new(48, -38));
+
+        let mut v = Vector::new(-8, 0);
+        v += Vector::new(-17, -3);
+        assert_eq!(v, Vector::new(-25, -3));
+
+        let mut v = Vector::new(-0, -0);
+        v += Vector::new(0, 0);
+        assert_eq!(v, Vector::new(0, 0));
+    }
+
+    #[test]
+    fn test_sub_assign_vectors() {
+        let mut v = Vector::new(0, 0);
+        v -= Vector::new(0, 0);
+        assert_eq!(v, Vector::new(0, 0));
+
+        let mut v = Vector::new(5, 3);
+        v -= Vector::new(8, 1);
+        assert_eq!(v, Vector::new(-3, 2));
+
+        let mut v = Vector::new(20, -94);
+        v -= Vector::new(28, 56);
+        assert_eq!(v, Vector::new(-8, -150));
+
+        let mut v = Vector::new(-8, 0);
+        v -= Vector::new(-17, -3);
+        assert_eq!(v, Vector::new(9, 3));
+
+        let mut v = Vector::new(-0, -0);
+        v -= Vector::new(0, 0);
+        assert_eq!(v, Vector::new(0, 0));
     }
 }

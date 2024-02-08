@@ -1,3 +1,4 @@
+use crate::element_api::ElementApi;
 use crate::elements::element::Element;
 use crate::matrix::Matrix;
 use crate::vector::Vector;
@@ -29,7 +30,7 @@ impl Simulation {
                             continue;
                         }
 
-                        (element.behaviour)(pos, &mut self.matrix);
+                        (element.behaviour)(ElementApi::new(&mut self.matrix, pos));
                     }
                 }
             }
