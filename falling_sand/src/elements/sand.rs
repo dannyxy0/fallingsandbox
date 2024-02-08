@@ -24,6 +24,10 @@ impl ElementProperties for SandProperties {
     fn set_visited(&mut self, value: bool) {
         self.visited = value;
     }
+
+    fn swap_priority(&self) -> u8 {
+        212
+    }
 }
 
 impl Default for SandProperties {

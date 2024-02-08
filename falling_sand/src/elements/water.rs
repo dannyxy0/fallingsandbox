@@ -24,6 +24,10 @@ impl ElementProperties for WaterProperties {
     fn set_visited(&mut self, value: bool) {
         self.visited = value;
     }
+
+    fn swap_priority(&self) -> u8 {
+        42
+    }
 }
 
 impl Default for WaterProperties {

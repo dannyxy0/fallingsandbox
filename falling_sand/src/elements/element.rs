@@ -9,6 +9,13 @@ pub trait ElementProperties: DynClone {
     /// Used to keep track of whether the element has been processed this tick
     fn visited(&self) -> bool;
     fn set_visited(&mut self, value: bool);
+
+    /// Decides whether two elements can swap. Bigger number can swap with smaller.
+    ///
+    /// Around 42 is typical for a gas
+    /// Around 127 is typical for a liquid
+    /// Around 212 is typical for a solid
+    fn swap_priority(&self) -> u8;
 }
 clone_trait_object!(ElementProperties);
 

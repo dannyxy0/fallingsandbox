@@ -52,7 +52,11 @@ impl<'a> ElementApi<'a> {
     ///
     /// * `pos` - Relative position to the element to swap with
     pub fn swap(&mut self, other_pos: Vector) -> bool {
-        if self.other_element(other_pos).is_some() {
+        let swap_priority = self.element().properties.swap_priority();
+        if self
+            .other_element(other_pos)
+            .is_some_and(|other| other.properties.swap_priority() >= swap_priority)
+        {
             return false;
         }
 

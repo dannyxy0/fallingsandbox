@@ -31,6 +31,10 @@ mod tests {
         fn set_visited(&mut self, value: bool) {
             self.visited = value;
         }
+
+        fn swap_priority(&self) -> u8 {
+            212
+        }
     }
 
     pub fn new_non_moving() -> Element {
