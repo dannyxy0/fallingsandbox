@@ -2,20 +2,28 @@ use crate::element_api::ElementApi;
 use crate::elements::element::Element;
 use crate::matrix::Matrix;
 use crate::vector::Vector;
+use rand_core::SeedableRng;
+use rand_xoshiro::SplitMix64;
 
 pub type ElementMatrix = Matrix<Option<Element>>;
 
 pub struct Simulation {
     pub matrix: ElementMatrix,
     tick_visit: bool,
+    rng: SplitMix64,
 }
 
 impl Simulation {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new_with_rand(width: usize, height: usize, rng: SplitMix64) -> Self {
         Simulation {
             matrix: Matrix::new(width, height, None),
             tick_visit: false,
+            rng,
         }
+    }
+
+    pub fn new(width: usize, height: usize) -> Self {
+        Self::new_with_rand(width, height, SplitMix64::from_entropy())
     }
 
     pub fn tick(&mut self) {
@@ -30,7 +38,7 @@ impl Simulation {
                             continue;
                         }
 
-                        (element.behaviour)(ElementApi::new(&mut self.matrix, pos));
+                        (element.behaviour)(ElementApi::new(&mut self.matrix, &mut self.rng, pos));
                     }
                 }
             }
