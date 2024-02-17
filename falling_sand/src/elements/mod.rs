@@ -33,7 +33,7 @@ mod tests {
         }
 
         fn swap_priority(&self) -> u8 {
-            212
+            255
         }
     }
 
@@ -55,5 +55,19 @@ mod tests {
             }),
             behaviour: |_| {},
         }
+    }
+
+    pub fn name_from_cell(cell: &Option<Element>) -> String {
+        cell.clone().unwrap().properties.name().to_string()
+    }
+
+    pub fn first_name(cells: Vec<&Option<Element>>) -> String {
+        for cell in cells {
+            if let Some(element) = cell {
+                return element.properties.name().to_string();
+            }
+        }
+
+        panic!("No cells contain elements")
     }
 }

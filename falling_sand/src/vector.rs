@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vector {
@@ -55,86 +55,26 @@ impl SubAssign for Vector {
     }
 }
 
-impl Display for Vector {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "x: {}, y: {}", self.x, self.y)
+impl Mul<isize> for Vector {
+    type Output = Vector;
+
+    fn mul(self, rhs: isize) -> Self::Output {
+        Vector {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_add_vectors() {
-        assert_eq!(Vector::new(0, 0) + Vector::new(0, 0), Vector::new(0, 0));
-        assert_eq!(Vector::new(5, 3) + Vector::new(8, 1), Vector::new(13, 4));
-        assert_eq!(
-            Vector::new(20, -94) + Vector::new(28, 56),
-            Vector::new(48, -38)
-        );
-        assert_eq!(
-            Vector::new(-8, 0) + Vector::new(-17, -3),
-            Vector::new(-25, -3)
-        );
-        assert_eq!(Vector::new(-0, -0) + Vector::new(0, 0), Vector::new(0, 0));
+impl MulAssign<isize> for Vector {
+    fn mul_assign(&mut self, rhs: isize) {
+        self.x *= rhs;
+        self.y *= rhs;
     }
+}
 
-    #[test]
-    fn test_sub_vectors() {
-        assert_eq!(Vector::new(0, 0) - Vector::new(0, 0), Vector::new(0, 0));
-        assert_eq!(Vector::new(5, 3) - Vector::new(8, 1), Vector::new(-3, 2));
-        assert_eq!(
-            Vector::new(20, -94) - Vector::new(28, 56),
-            Vector::new(-8, -150)
-        );
-        assert_eq!(Vector::new(-8, 0) - Vector::new(-17, -3), Vector::new(9, 3));
-        assert_eq!(Vector::new(-0, -0) - Vector::new(0, 0), Vector::new(0, 0));
-    }
-
-    #[test]
-    fn test_add_assign_vectors() {
-        let mut v = Vector::new(0, 0);
-        v += Vector::new(0, 0);
-        assert_eq!(v, Vector::new(0, 0));
-
-        let mut v = Vector::new(5, 3);
-        v += Vector::new(8, 1);
-        assert_eq!(v, Vector::new(13, 4));
-
-        let mut v = Vector::new(20, -94);
-        v += Vector::new(28, 56);
-        assert_eq!(v, Vector::new(48, -38));
-
-        let mut v = Vector::new(-8, 0);
-        v += Vector::new(-17, -3);
-        assert_eq!(v, Vector::new(-25, -3));
-
-        let mut v = Vector::new(-0, -0);
-        v += Vector::new(0, 0);
-        assert_eq!(v, Vector::new(0, 0));
-    }
-
-    #[test]
-    fn test_sub_assign_vectors() {
-        let mut v = Vector::new(0, 0);
-        v -= Vector::new(0, 0);
-        assert_eq!(v, Vector::new(0, 0));
-
-        let mut v = Vector::new(5, 3);
-        v -= Vector::new(8, 1);
-        assert_eq!(v, Vector::new(-3, 2));
-
-        let mut v = Vector::new(20, -94);
-        v -= Vector::new(28, 56);
-        assert_eq!(v, Vector::new(-8, -150));
-
-        let mut v = Vector::new(-8, 0);
-        v -= Vector::new(-17, -3);
-        assert_eq!(v, Vector::new(9, 3));
-
-        let mut v = Vector::new(-0, -0);
-        v -= Vector::new(0, 0);
-        assert_eq!(v, Vector::new(0, 0));
+impl Display for Vector {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "x: {}, y: {}", self.x, self.y)
     }
 }

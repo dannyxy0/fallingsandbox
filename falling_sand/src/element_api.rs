@@ -80,6 +80,6 @@ impl<'a> ElementApi<'a> {
 
     /// Returns -1 or 1 using `self.rng`
     pub fn rand_dir(&mut self) -> i32 {
-        (self.rng.next_u32() as i32 % 2) * 2 - 1
+        (self.rng.next_u32() as i32 % 2).abs() * 2 - 1
     }
 }
