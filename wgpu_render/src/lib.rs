@@ -4,6 +4,7 @@ mod wgpu_wrapper;
 use crate::vertex::vertices_from_matrix;
 use crate::wgpu_wrapper::WgpuWrapper;
 use falling_sand::elements::sand::new_sand;
+use falling_sand::elements::stone::new_stone;
 use falling_sand::elements::water::new_water;
 use falling_sand::simulation::Simulation;
 use falling_sand::vector::Vector;
@@ -21,7 +22,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut simulation = Simulation::new(100, 100);
     let mut wgpu = WgpuWrapper::new(&window).await.unwrap();
 
-    let drawable_elements = [new_sand, new_water];
+    let drawable_elements = [new_sand, new_water, new_stone];
     let mut drawable_index = 0usize;
     let mut last_tick = Instant::now();
     let mut drawing = false;
