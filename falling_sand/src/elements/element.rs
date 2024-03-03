@@ -21,6 +21,6 @@ clone_trait_object!(ElementProperties);
 
 #[derive(Clone)]
 pub struct Element {
-    pub properties: Box<dyn ElementProperties>,
+    pub properties: Box<dyn ElementProperties + Sync + Send>,
     pub behaviour: fn(api: ElementApi),
 }

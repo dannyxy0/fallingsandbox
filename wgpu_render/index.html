@@ -14,20 +14,59 @@
             outline: none;
         }
 
+        #controls {
+            position: absolute;
+            right: 25px;
+            top: 25px;
+        }
+
+        #controls > button {
+            margin: 5px;
+            padding: 10px;
+            border: black;
+            border-radius: 5px;
+        }
+
         .canvas-wrapper {
             display: flex;
             justify-content: center;
         }
+
+        #delete {
+            background-color: indianred;
+        }
+
+        #delete:hover {
+            background-color: darkred;
+        }
     </style>
 </head>
     <body>
+        <div id="controls"></div>
         <div class="canvas-wrapper">
             <canvas id="canvas" style="width: 800px; height: 800px;"></canvas>
         </div>
+
         <script type="module">
             import init from "./pkg/wgpu_render.js";
+            import {elements, start, set_current_element, set_current_element_delete} from "./pkg/wgpu_render.js";
             init().then(() => {
                 console.log("WASM Loaded");
+
+                let controls = document.getElementById("controls");
+                elements().forEach((element) => {
+                    let button = document.createElement("button");
+                    button.textContent = element;
+                    button.addEventListener("click", () => set_current_element(element));
+                    controls.appendChild(button);
+                });
+                let clearButton = document.createElement("button");
+                clearButton.textContent = "Delete";
+                clearButton.id = "delete";
+                clearButton.addEventListener("click", () => set_current_element_delete());
+                controls.appendChild(clearButton);
+
+                start();
             });
         </script>
     </body>

@@ -3,11 +3,14 @@ mod wgpu_wrapper;
 
 use crate::vertex::vertices_from_matrix;
 use crate::wgpu_wrapper::WgpuWrapper;
+use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::new_sand;
 use falling_sand::elements::stone::new_stone;
 use falling_sand::elements::water::new_water;
 use falling_sand::simulation::Simulation;
 use falling_sand::vector::Vector;
+use lazy_static::lazy_static;
+use std::sync::Mutex;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use web_time::{Duration, Instant};
@@ -18,16 +21,22 @@ use winit::window::Window;
 
 const TICK_SPEED: Duration = Duration::from_millis(10);
 
+// Game state
+// Has to be a singleton to be accessible through a wasmbind function through js
+lazy_static! {
+    static ref CURRENT_ELEMENT: Mutex<Option<Element>> = Mutex::new(Some(DRAWABLE_ELEMENTS[0]()));
+}
+const DRAWABLE_ELEMENTS: [fn() -> Element; 3] = [new_sand, new_water, new_stone];
+
 async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut simulation = Simulation::new(100, 100);
     let mut wgpu = WgpuWrapper::new(&window).await.unwrap();
 
-    let drawable_elements = [new_sand, new_water, new_stone];
+    let drawable_elements = DRAWABLE_ELEMENTS;
     let mut drawable_index = 0usize;
     let mut last_tick = Instant::now();
     let mut drawing = false;
     let mut cursor_position = Vector::new(0, 0);
-    let mut current_element = Some(drawable_elements[0]());
 
     let window = &window;
     event_loop.set_control_flow(ControlFlow::Poll);
@@ -41,7 +50,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             if drawing {
                 let _ = simulation
                     .matrix
-                    .set(cursor_position, current_element.clone());
+                    .set(cursor_position, CURRENT_ELEMENT.lock().unwrap().clone());
                 window.request_redraw();
             }
 
@@ -76,12 +85,14 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             match event.logical_key.as_ref() {
                                 Key::Character("j") => {
                                     drawable_index = drawable_index.saturating_sub(1);
-                                    current_element = Some(drawable_elements[drawable_index]());
+                                    *(CURRENT_ELEMENT.lock().unwrap()) =
+                                        Some(drawable_elements[drawable_index]());
                                 }
                                 Key::Character("l") => {
                                     drawable_index =
                                         (drawable_index + 1).min(drawable_elements.len() - 1);
-                                    current_element = Some(drawable_elements[drawable_index]());
+                                    *(CURRENT_ELEMENT.lock().unwrap()) =
+                                        Some(drawable_elements[drawable_index]());
                                 }
                                 _ => (),
                             }
@@ -95,8 +106,32 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         .unwrap();
 }
 
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn elements() -> Vec<String> {
+    DRAWABLE_ELEMENTS
+        .map(|x| x().properties.name().into())
+        .to_vec()
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn set_current_element(element: &str) {
+    *(CURRENT_ELEMENT.lock().unwrap()) = DRAWABLE_ELEMENTS
+        .iter()
+        .map(|x| x())
+        .filter(|x| x.properties.name() == element)
+        .next();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn set_current_element_delete() {
+    *(CURRENT_ELEMENT.lock().unwrap()) = None;
+}
+
 #[allow(dead_code)]
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub fn start() {
     let event_loop = EventLoop::new().expect("Couldnt create event loop");
     #[allow(unused_mut)]
