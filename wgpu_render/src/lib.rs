@@ -48,7 +48,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 last_tick = Instant::now();
                 window.request_redraw();
             }
-            if drawing {
+            if drawing
+                && cursor_position.x < simulation.matrix.ncols()
+                && cursor_position.y < simulation.matrix.nrows()
+            {
                 simulation.matrix[idx!(cursor_position)] = CURRENT_ELEMENT.lock().unwrap().clone();
                 window.request_redraw();
             }
