@@ -1,6 +1,6 @@
 use crate::color::Color;
+use crate::elements::behaviour::powder_behaviour::powder_behaviour;
 use crate::elements::element::{Element, ElementProperties};
-use crate::elements::powder_behaviour::powder_behaviour;
 
 #[derive(Clone)]
 pub struct SandProperties {

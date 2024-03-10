@@ -1,6 +1,6 @@
 use crate::color::Color;
+use crate::elements::behaviour::solid_behaviour::solid_behaviour;
 use crate::elements::element::{Element, ElementProperties};
-use crate::elements::solid_behaviour::solid_behaviour;
 
 #[derive(Clone)]
 pub struct StoneProperties {

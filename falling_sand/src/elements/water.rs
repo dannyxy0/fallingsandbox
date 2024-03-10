@@ -1,6 +1,6 @@
 use crate::color::Color;
+use crate::elements::behaviour::liquid_behaviour::liquid_behaviour;
 use crate::elements::element::{Element, ElementProperties};
-use crate::elements::liquid_behaviour::liquid_behaviour;
 
 #[derive(Clone)]
 pub struct WaterProperties {
