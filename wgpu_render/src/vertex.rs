@@ -33,11 +33,12 @@ impl<'a> Vertex {
 
 pub fn vertices_from_matrix(matrix: &ElementMatrix) -> Vec<Vertex> {
     // clip_space ranges from -1 to 1, so we need to divide 2 by xy
-    let spacing_x = 2.0 / matrix.width() as f32;
-    let spacing_y = 2.0 / matrix.height() as f32;
+    let spacing_x = 2.0 / matrix.ncols() as f32;
+    let spacing_y = 2.0 / matrix.nrows() as f32;
 
     matrix
-        .matrix
+        .data
+        .as_slice()
         .iter()
         .enumerate()
         .filter_map(|(i, cell)| {
@@ -47,8 +48,8 @@ pub fn vertices_from_matrix(matrix: &ElementMatrix) -> Vec<Vertex> {
 
                 // origin is the top left position of the rectangle we need to draw
                 // position from 0 to 1
-                let mut origin_x = (i % matrix.width()) as f32 / matrix.width() as f32;
-                let mut origin_y = (i / matrix.height()) as f32 / matrix.height() as f32;
+                let mut origin_x = (i % matrix.ncols()) as f32 / matrix.ncols() as f32;
+                let mut origin_y = (i / matrix.nrows()) as f32 / matrix.nrows() as f32;
                 // position from -1 to 1
                 origin_x = origin_x * 2.0 - 1.0;
                 origin_y = 1.0 - origin_y * 2.0;

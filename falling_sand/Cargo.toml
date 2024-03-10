@@ -10,3 +10,4 @@ log = "0.4.20"
 getrandom = { version = "0.2.12", features = ["js"] }
 rand_core = { version = "0.6.4", features = ["getrandom"] }
 rand_xoshiro = "0.6.0"
+nalgebra = "0.32.4"

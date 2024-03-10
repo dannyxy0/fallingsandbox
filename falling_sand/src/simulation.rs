@@ -1,11 +1,11 @@
 use crate::element_api::ElementApi;
 use crate::elements::element::Element;
-use crate::matrix::Matrix;
-use crate::vector::Vector;
+use crate::idx;
+use nalgebra::{DMatrix, Dim, Dyn, VecStorage, Vector2};
 use rand_core::SeedableRng;
 use rand_xoshiro::SplitMix64;
 
-pub type ElementMatrix = Matrix<Option<Element>>;
+pub type ElementMatrix = DMatrix<Option<Element>>;
 
 pub struct Simulation {
     pub matrix: ElementMatrix,
@@ -15,8 +15,13 @@ pub struct Simulation {
 
 impl Simulation {
     pub fn new_with_rand(width: usize, height: usize, rng: SplitMix64) -> Self {
+        let data = VecStorage::new(
+            Dyn::from_usize(height),
+            Dyn::from_usize(width),
+            vec![None; width * height],
+        );
         Simulation {
-            matrix: Matrix::new(width, height, None),
+            matrix: ElementMatrix::from_data(data),
             tick_visit: false,
             rng,
         }
@@ -27,10 +32,10 @@ impl Simulation {
     }
 
     pub fn tick(&mut self) {
-        for i in 0..self.matrix.width() {
-            for j in (0..self.matrix.height()).rev() {
-                let pos = Vector::new_usize(i, j);
-                let cell = self.matrix.get_mut(pos).expect("pos is in bounds");
+        for i in 0..self.matrix.ncols() {
+            for j in (0..self.matrix.nrows()).rev() {
+                let pos = Vector2::new(i, j);
+                let cell = &mut self.matrix[idx!(pos)];
                 match cell {
                     None => (),
                     Some(element) => {

@@ -7,9 +7,10 @@ use falling_sand::elements::element::Element;
 use falling_sand::elements::sand::new_sand;
 use falling_sand::elements::stone::new_stone;
 use falling_sand::elements::water::new_water;
+use falling_sand::idx;
 use falling_sand::simulation::Simulation;
-use falling_sand::vector::Vector;
 use lazy_static::lazy_static;
+use nalgebra::Vector2;
 use std::sync::Mutex;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -36,7 +37,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut drawable_index = 0usize;
     let mut last_tick = Instant::now();
     let mut drawing = false;
-    let mut cursor_position = Vector::new(0, 0);
+    let mut cursor_position = Vector2::new(0, 0);
 
     let window = &window;
     event_loop.set_control_flow(ControlFlow::Poll);
@@ -48,9 +49,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 window.request_redraw();
             }
             if drawing {
-                let _ = simulation
-                    .matrix
-                    .set(cursor_position, CURRENT_ELEMENT.lock().unwrap().clone());
+                simulation.matrix[idx!(cursor_position)] = CURRENT_ELEMENT.lock().unwrap().clone();
                 window.request_redraw();
             }
 
@@ -71,13 +70,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         }
                     }
                     WindowEvent::CursorMoved { position, .. } => {
-                        cursor_position = Vector::new(
+                        cursor_position = Vector2::new(
                             ((position.x / wgpu.config.width as f64)
-                                * simulation.matrix.width() as f64)
-                                as isize,
+                                * simulation.matrix.ncols() as f64)
+                                as usize,
                             ((position.y / wgpu.config.height as f64)
-                                * simulation.matrix.height() as f64)
-                                as isize,
+                                * simulation.matrix.nrows() as f64)
+                                as usize,
                         );
                     }
                     WindowEvent::KeyboardInput { event, .. } => {

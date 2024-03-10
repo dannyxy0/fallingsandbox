@@ -1,6 +1,7 @@
 use crate::elements::element::Element;
+use crate::idx;
 use crate::simulation::ElementMatrix;
-use crate::vector::Vector;
+use nalgebra::Vector2;
 use rand_core::RngCore;
 use rand_xoshiro::SplitMix64;
 
@@ -8,7 +9,7 @@ use rand_xoshiro::SplitMix64;
 pub struct ElementApi<'a> {
     pub matrix: &'a mut ElementMatrix,
     pub rng: &'a mut SplitMix64,
-    pub position: Vector,
+    pub position: Vector2<usize>,
 }
 
 impl<'a> ElementApi<'a> {
@@ -17,7 +18,11 @@ impl<'a> ElementApi<'a> {
     /// * `matrix` - The ElementMatrix
     /// * `rng` - The random number generator
     /// * `position` - The absolute position to the current element. Needs to be a valid position containing an element
-    pub fn new(matrix: &'a mut ElementMatrix, rng: &'a mut SplitMix64, position: Vector) -> Self {
+    pub fn new(
+        matrix: &'a mut ElementMatrix,
+        rng: &'a mut SplitMix64,
+        position: Vector2<usize>,
+    ) -> Self {
         Self {
             matrix,
             rng,
@@ -36,7 +41,7 @@ impl<'a> ElementApi<'a> {
     /// Returns the current element
     pub fn element(&mut self) -> &mut Element {
         self.matrix
-            .get_mut(self.position)
+            .get_mut(idx!(self.position))
             .expect("ElementApi expects valid position")
             .as_mut()
             .expect("ElementApi expects position containing element")
@@ -47,10 +52,11 @@ impl<'a> ElementApi<'a> {
     /// # Arguments
     ///
     /// * `rel_pos` - Relative position to the element
-    pub fn other_element(&mut self, rel_pos: Vector) -> Option<&mut Element> {
+    pub fn other_element(&mut self, rel_pos: Vector2<isize>) -> Option<&mut Element> {
+        let pos = self.position.cast() + rel_pos;
         self.matrix
-            .get_mut(self.position + rel_pos)
-            .map_or(None, |x| x.as_mut())
+            .get_mut(idx!(pos.try_cast()?))
+            .and_then(|x| x.as_mut())
     }
 
     /// Swaps `self.position` with `other_pos` if possible.
@@ -59,27 +65,41 @@ impl<'a> ElementApi<'a> {
     /// # Arguments
     ///
     /// * `other_pos` - Relative position to the element to swap with
-    pub fn swap(&mut self, other_pos: Vector) -> bool {
+    pub fn swap(&mut self, other_pos: Vector2<isize>) -> bool {
         let swap_priority = self.element().properties.swap_priority();
         if self
             .other_element(other_pos)
             .is_some_and(|other| other.properties.swap_priority() >= swap_priority)
+            || !self.in_bounds(other_pos)
         {
             return false;
         }
 
-        let swapped = self
-            .matrix
-            .swap(self.position, self.position + other_pos)
-            .is_ok();
-        if swapped {
-            self.position += other_pos;
+        let abs_other_pos = (self.position.cast() + other_pos).try_cast();
+        if let Some(pos) = abs_other_pos {
+            self.matrix.swap(idx!(self.position), idx!(pos));
+            self.position = pos;
+            true
+        } else {
+            false
         }
-        swapped
     }
 
     /// Returns -1 or 1 using `self.rng`
     pub fn rand_dir(&mut self) -> i32 {
         (self.rng.next_u32() as i32 % 2).abs() * 2 - 1
+    }
+
+    /// Checks if the position is in bounds of `self.matrix`
+    ///
+    /// # Arguments
+    ///
+    /// * `rel_pos` - Relative position that is to be checked
+    pub fn in_bounds(&self, rel_pos: Vector2<isize>) -> bool {
+        let pos = self.position.cast() + rel_pos;
+        pos.x >= 0
+            && pos.x < self.matrix.ncols() as isize
+            && pos.y >= 0
+            && pos.y < self.matrix.nrows() as isize
     }
 }
